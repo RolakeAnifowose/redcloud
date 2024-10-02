@@ -10,10 +10,6 @@ def hello():
 def healthcheck():
     return 'Healthy'
 
-# @app.route('/')
-# def no_page():
-#     return 'Invalid URL'
-
 @app.errorhandler(404)
 def page_not_found(e):
     return jsonify(error="Not found"), 404
