@@ -23,20 +23,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 5: Conditionally Generate Docker Compose Override for DB
-      - name: Conditionally Generate Docker Compose Override
-        run: |
-          if [ -n "${{ secrets.DB_USER }}" ] && [ -n "${{ secrets.DB_PASSWORD }}" ]; then
-            echo "version: '3.8'" > docker-compose.override.yml
-            echo "services:" >> docker-compose.override.yml
-            echo "  app:" >> docker-compose.override.yml
-            echo "    environment:" >> docker-compose.override.yml
-            echo "      - DB_USER=${{ secrets.DB_USER }}" >> docker-compose.override.yml
-            echo "      - DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> docker-compose.override.yml
-            echo "      - DB_HOST=${{ secrets.DB_HOST }}" >> docker-compose.override.yml
-            echo "      - DB_NAME=${{ secrets.DB_NAME }}" >> docker-compose.override.yml
-          fi
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -46,7 +32,6 @@ jobs:
 
       - name: Login to ECR
         id: login-ecr
-        # uses: aws-actions/amazon-ecr-login@v2
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 556298987240.dkr.ecr.us-east-1.amazonaws.com
 
@@ -70,18 +55,14 @@ jobs:
           docker tag $ECR_NGINX_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
 
-      - name: Get Task Definition
+      - name: Task Definition
         run: | 
           aws ecs describe-task-definition \
             --task-definition $ECS_TASK_DEFINITION_NAME \
             --query 'taskDefinition' \
             --output json > task-def.json
 
-      - name: Print Task Definition Contents
-        run: |
-          cat task-def.json
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
+      - name: Nginx image in the ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -89,7 +70,7 @@ jobs:
           container-name: nginx
           image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_NGINX_REPOSITORY }}:latest
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
+      - name: Flask image in the ECS task definition
         id: task-def2
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
