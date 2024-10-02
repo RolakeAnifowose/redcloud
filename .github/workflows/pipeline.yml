@@ -10,7 +10,7 @@ env:
   ECR_NGINX_REPOSITORY: nginx
   ECS_CLUSTER_NAME: hello-world
   ECS_SERVICE_NAME: nginx-hello-world
-  ECS_TASK_DEFINITION_NAME: nginx-hello-world
+  ECS_TASK_DEFINITION_NAME: redcloud-hello-world
 
 jobs:
   deploy:
@@ -86,8 +86,16 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-def.json
-          container-name: redcloud
+          container-name: nginx
           image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_NGINX_REPOSITORY }}:latest
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-def.json
+          container-name: flask
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_FLASK_REPOSITORY }}:latest
       
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
