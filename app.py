@@ -2,11 +2,11 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/v1/', methods=['GET'])
+@app.route('/api/v1', methods=['GET'])
 def hello():
     return 'Hello World'
 
-@app.route('/healthcheck/', methods=['GET'])
+@app.route('/healthcheck', methods=['GET'])
 def healthcheck():
     return 'Healthy'
 
