@@ -76,8 +76,8 @@ jobs:
           sudo apt-get -y install awscli
           curl -Lo /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/v2.0.0/docker-compose-linux-x86_64
           chmod +x /usr/local/bin/docker-compose
-          docker context create ecs myecscontext --from-env .env.local up
-          docker context use myecscontext
+          docker context create ecs redcloudecscontext
+          docker context use redcloudecscontext
 
       # Step 9: Deploy to ECS (Specify ECS Cluster via Environment Variable)
       - name: Deploy to ECS
