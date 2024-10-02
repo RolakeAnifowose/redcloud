@@ -34,17 +34,17 @@ Before running the code, ensure you have the following:
 3. Push the code to the repository (the pipeline is triggered on pushes to the master branch).
 
 ## Validation
-![/api/v1](Desktop/Screenshot 2024-10-02 at 15.04.36.png)
-![/healthcheck](Desktop/Screenshot 2024-10-02 at 15.10.50.png)
-![/otherroute](Desktop/Screenshot 2024-10-02 at 15.11.46.png)
+![/api/v1](Desktop/1504.png)
+![/healthcheck](Desktop/1510.png)
+![/otherroute](Desktop/1156.png)
 
 ## AWS Resources Required Before Building & Running
 
 1. **ECR Repositories**: Set up your Elastic Container Registry (ECR) repositories.
-![ECR](Desktop/Screenshot 2024-10-02 at 14.59.39)
+![ECR](Desktop/1459.png)
 
 2. **ECS Cluster**: Create an ECS cluster with Fargate infrastructure.
-![cluster](Desktop/Screenshot 2024-10-02 at 14.26.57)
+![cluster](Desktop/1426.png)
 
 3. **ECS Task Definition**: Create a task definition with the following specifications:
    - **Containers**:
@@ -54,7 +54,6 @@ Before running the code, ensure you have the following:
    - **App Environment**: Fargate
    - **CPU**: `2 vCPU`
    - **Memory**: `3 GB`
-![taskdefinition](Desktop/Screenshot 2024-10-02 at 14.28.19)
 
 4. **Security Groups**:
 
