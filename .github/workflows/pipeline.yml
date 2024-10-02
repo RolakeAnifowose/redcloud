@@ -6,7 +6,8 @@ on:
       - master
 
 env:
-  ECR_REPOSITORY: redcloud
+  ECR_FLASK_REPOSITORY: flask
+  ECR_NGINX_REPOSITORY: nginx
   ECS_CLUSTER_NAME: hello-world
   ECS_SERVICE_NAME: nginx-hello-world
   ECS_TASK_DEFINITION_NAME: nginx-hello-world
@@ -49,21 +50,25 @@ jobs:
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 556298987240.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push Flask image to Amazon ECR
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REPOSITORY:${IMAGE_TAG} .
+          docker build -t $ECR_FLASK_REPOSITORY:${IMAGE_TAG} -f app/Dockerfile .
+          docker tag $ECR_FLASK_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_FLASK_REPOSITORY:latest
 
-          docker tag $ECR_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:latest
-
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:latest
-
-      - name: Log the image name
-        run: echo "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
-
+      - name: Build, tag, and push Nginx image to Amazon ECR
+        id: build-image2
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_NGINX_REPOSITORY:${IMAGE_TAG} -f nginx/Dockerfile.
+          docker tag $ECR_NGINX_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
 
       - name: Get Task Definition
         run: | 
@@ -83,21 +88,6 @@ jobs:
           task-definition: task-def.json
           container-name: redcloud
           image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
-
-      # Step 8: Install Docker ECS Integration
-      # - name: Install Docker ECS Integration
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get -y install awscli
-      #     curl -Lo /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/v2.0.0/docker-compose-linux-x86_64
-      #     chmod +x /usr/local/bin/docker-compose
-      #     docker context create ecs redcloudecscontext --from-env
-      #     docker context use redcloudecscontext
-
-      # Step 9: Deploy to ECS (Specify ECS Cluster via Environment Variable)
-      # - name: Deploy to ECS
-      #   run: |
-      #     ECS_CLUSTER_NAME={{ env.ECS_CLUSTER_NAME }} docker-compose up
       
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
