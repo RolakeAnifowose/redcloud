@@ -1,4 +1,4 @@
-name: Build, Cache, and Deploy to ECS
+name: Deploy to ECS
 
 on:
   push:
@@ -6,37 +6,21 @@ on:
       - master
 
 env:
-  cluster-name: hello-world
-
+  ECR_REGISTRY: redcloud
+  ECS_CLUSTER_NAME: hello-world
+  ECS_SERVICE_NAME: nginx-hello-world
+  ECS_TASK_DEFINITION_NAME: nginx-hello-world
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Docker Buildx for caching
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
-      # # Step 3: Log in to Docker Hub (optional)
-      # - name: Log in to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # # Step 4: Cache Docker layers
-      # - name: Cache Docker layers
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: /tmp/.buildx-cache
-      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-
 
       # Step 5: Conditionally Generate Docker Compose Override for DB
       - name: Conditionally Generate Docker Compose Override
@@ -52,16 +36,6 @@ jobs:
             echo "      - DB_NAME=${{ secrets.DB_NAME }}" >> docker-compose.override.yml
           fi
 
-      # Step 6: Build Docker Compose services and use cache
-      # - name: Build Docker Compose
-      #   run: |
-      #     docker-compose build \
-      #       --progress=plain \
-      #       --build-arg BUILDKIT_INLINE_CACHE=1 \
-      #       --cache-from=type=local,src=/tmp/.buildx-cache \
-      #       --cache-to=type=local,dest=/tmp/.buildx-cache
-
-      # Step 7: Configure AWS Credentials for ECS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -69,17 +43,54 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Step 8: Install Docker ECS Integration
-      - name: Install Docker ECS Integration
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          sudo apt-get update
-          sudo apt-get -y install awscli
-          curl -Lo /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/v2.0.0/docker-compose-linux-x86_64
-          chmod +x /usr/local/bin/docker-compose
-          docker context create ecs redcloudecscontext
-          docker context use redcloudecscontext
+          docker build -t {{ env.ECR_REGISTRY }} .
+          docker tag {{ env.ECR_REGISTRY }}:latest {{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.{{secrets.AWS_REGION}}.amazonaws.com/{{ env.ECR_REGISTRY }}:latest
+          docker push {{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.{{secrets.AWS_REGION}}.amazonaws.com/{{ env.ECR_REGISTRY }}:latest
+
+      - name: Get Task Definition
+        run: | 
+          aws ecs describe-task-definition \
+            --task-definition $ECS_TASK_DEFINITION_NAME \
+            --query 'taskDefinition' \
+            --output json > task-def.json
+      
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-def.json
+          container-name: redcloud
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/{{ env.ECR_REGISTRY }}:latest
+
+      # Step 8: Install Docker ECS Integration
+      # - name: Install Docker ECS Integration
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get -y install awscli
+      #     curl -Lo /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/v2.0.0/docker-compose-linux-x86_64
+      #     chmod +x /usr/local/bin/docker-compose
+      #     docker context create ecs redcloudecscontext --from-env
+      #     docker context use redcloudecscontext
 
       # Step 9: Deploy to ECS (Specify ECS Cluster via Environment Variable)
-      - name: Deploy to ECS
-        run: |
-          ECS_CLUSTER_NAME={{ env.cluster-name }} docker-compose up
+      # - name: Deploy to ECS
+      #   run: |
+      #     ECS_CLUSTER_NAME={{ env.ECS_CLUSTER_NAME }} docker-compose up
+      
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_NAME }}
+          cluster: ${{ env.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
