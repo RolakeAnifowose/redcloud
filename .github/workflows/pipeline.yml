@@ -56,8 +56,8 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REPOSITORY .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/redcloud:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
       - name: Get Task Definition
         run: | 
@@ -72,7 +72,7 @@ jobs:
         with:
           task-definition: task-def.json
           container-name: redcloud
-          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/{{ env.ECR_REPOSITORY }}:latest
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/{{ env.ECR_REPOSITORY }}:latest
 
       # Step 8: Install Docker ECS Integration
       # - name: Install Docker ECS Integration
