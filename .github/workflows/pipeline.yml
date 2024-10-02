@@ -9,7 +9,7 @@ env:
   ECR_FLASK_REPOSITORY: flask
   ECR_NGINX_REPOSITORY: nginx
   ECS_CLUSTER_NAME: hello-world
-  ECS_SERVICE_NAME: nginx-hello-world
+  ECS_SERVICE_NAME: redcloud-hello-world-ecs-service
   ECS_TASK_DEFINITION_NAME: redcloud-hello-world
 
 jobs:
