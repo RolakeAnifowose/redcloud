@@ -90,7 +90,7 @@ jobs:
           image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_NGINX_REPOSITORY }}:latest
 
       - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
+        id: task-def2
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-def.json
