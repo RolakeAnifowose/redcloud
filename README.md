@@ -3,7 +3,7 @@
 This document outlines the implementation of a "hello world" microservice using Nginx as a reverse proxy, containerized with Docker, and deployed to AWS Fargate.
 
 ## Summary
-This project utilizes GitHub Actions for Continuous Integration and Continuous Deployment (CI/CD) to automatically build, push, and deploy containerized services (Flask and Nginx) to AWS Fargate via Amazon ECS. The pipeline triggers on every push to the master branch and is responsible for building Docker images, pushing them to Amazon ECR, and updating the ECS service.
+This project utilizes GitHub Actions for continuous integration and deployment to automatically build, push, and deploy containerized services (Flask and Nginx) to AWS Fargate via Amazon ECS. The pipeline gets triggered on every push to the master branch and is responsible for building Docker images, pushing them to Amazon ECR, and updating the ECS service.
 
 ## Features
 - **Microservice Architecture**: The application responds to HTTPS requests with a simple "Hello World" message, demonstrating the ability to serve basic content over HTTP.
@@ -36,17 +36,17 @@ Before running the code, ensure you have the following:
 3. Push the code to the repository (the pipeline is triggered on pushes to the master branch).
 
 ## Validation
-![/api/v1](/Users/rolly/Desktop/1504.png)
-![/healthcheck](/Users/rolly/Desktop/1510.png)
-![/otherroute](/Users/rolly/Desktop/1156.png)
+![1504](https://github.com/user-attachments/assets/0afb4435-c767-42da-a604-36dc67ea157c)
+![1510](https://github.com/user-attachments/assets/446e1e2c-3d8d-4018-b1fc-b499b9aca3a1)
+![1156](https://github.com/user-attachments/assets/4bf814b7-1842-40dd-a733-ed83ff4c0900)
 
 ## AWS Resources Required Before Building & Running
 
-1. **ECR Repositories**: Set up your Elastic Container Registry (ECR) repositories.
-![ECR](/Users/rolly/Desktop/1459.png)
+1. **ECR Repositories**: Set up your Elastic Container Registry (ECR) repositories. <br>
+![1459](https://github.com/user-attachments/assets/1aaa69b2-8dc4-4172-9b97-84fd9ac5af7d)
 
 2. **ECS Cluster**: Create an ECS cluster with Fargate infrastructure.
-![cluster](/Users/rolly/Desktop/1426.png)
+![1426](https://github.com/user-attachments/assets/046ab72d-6e57-4902-8d44-68a208f770a4)
 
 3. **ECS Task Definition**: Create a task definition with the following specifications:
    - **Containers**:
