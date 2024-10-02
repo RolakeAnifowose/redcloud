@@ -2,7 +2,7 @@
 FROM nginx:alpine AS nginx
 
 COPY Dockerfile.nginx .
-#RUN ["docker", "build", "-t", "nginx:custom", "."]
+RUN ["docker", "build", "-t", "nginx:custom", "."]
 
 # Stage 2: Build Flask application image
 FROM python:3.9-slim
