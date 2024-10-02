@@ -66,7 +66,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_NGINX_REPOSITORY:${IMAGE_TAG} -f nginx/Dockerfile.
+          docker build -t $ECR_NGINX_REPOSITORY:${IMAGE_TAG} -f nginx/Dockerfile .
           docker tag $ECR_NGINX_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
 
@@ -87,7 +87,7 @@ jobs:
         with:
           task-definition: task-def.json
           container-name: redcloud
-          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_NGINX_REPOSITORY }}:latest
       
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
