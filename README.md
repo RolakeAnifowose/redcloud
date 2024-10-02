@@ -3,7 +3,9 @@
 This document outlines the implementation of a "hello world" microservice using Nginx as a reverse proxy, containerized with Docker, and deployed to AWS Fargate.
 
 ## Summary
+This project utilizes GitHub Actions for Continuous Integration and Continuous Deployment (CI/CD) to automatically build, push, and deploy containerized services (Flask and Nginx) to AWS Fargate via Amazon ECS. The pipeline triggers on every push to the master branch and is responsible for building Docker images, pushing them to Amazon ECR, and updating the ECS service.
 
+## Features
 - **Microservice Architecture**: The application responds to HTTPS requests with a simple "Hello World" message, demonstrating the ability to serve basic content over HTTP.
 - **Nginx as a Reverse Proxy**: Nginx handles incoming requests and proxies them to a Flask application running on port 5000.
 - **Containerization with Docker**: The microservice is packaged as a Docker container, enabling easy deployment and scalability across various environments.
@@ -34,17 +36,17 @@ Before running the code, ensure you have the following:
 3. Push the code to the repository (the pipeline is triggered on pushes to the master branch).
 
 ## Validation
-![/api/v1](Desktop/1504.png)
-![/healthcheck](Desktop/1510.png)
-![/otherroute](Desktop/1156.png)
+![/api/v1](/Users/rolly/Desktop/1504.png)
+![/healthcheck](/Users/rolly/Desktop/1510.png)
+![/otherroute](/Users/rolly/Desktop/1156.png)
 
 ## AWS Resources Required Before Building & Running
 
 1. **ECR Repositories**: Set up your Elastic Container Registry (ECR) repositories.
-![ECR](Desktop/1459.png)
+![ECR](/Users/rolly/Desktop/1459.png)
 
 2. **ECS Cluster**: Create an ECS cluster with Fargate infrastructure.
-![cluster](Desktop/1426.png)
+![cluster](/Users/rolly/Desktop/1426.png)
 
 3. **ECS Task Definition**: Create a task definition with the following specifications:
    - **Containers**:
