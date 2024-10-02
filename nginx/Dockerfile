@@ -7,4 +7,4 @@
 
 FROM public.ecr.aws/nginx/nginx:mainline
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
