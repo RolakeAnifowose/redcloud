@@ -57,7 +57,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_FLASK_REPOSITORY:${IMAGE_TAG} -f app/Dockerfile .
-          docker tag $ECR_FLASK_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:latest
+          docker tag $ECR_FLASK_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_FLASK_REPOSITORY:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_FLASK_REPOSITORY:latest
 
       - name: Build, tag, and push Nginx image to Amazon ECR
@@ -67,7 +67,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_NGINX_REPOSITORY:${IMAGE_TAG} -f nginx/Dockerfile.
-          docker tag $ECR_NGINX_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:latest
+          docker tag $ECR_NGINX_REPOSITORY:${IMAGE_TAG} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
 
       - name: Get Task Definition
