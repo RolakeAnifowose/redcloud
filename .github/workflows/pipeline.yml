@@ -71,14 +71,18 @@ jobs:
             --task-definition $ECS_TASK_DEFINITION_NAME \
             --query 'taskDefinition' \
             --output json > task-def.json
-      
+
+      - name: Print Task Definition Contents
+        run: |
+          cat task-def.json
+
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-def.json
           container-name: redcloud
-          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/{{ env.ECR_REPOSITORY }}:latest
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:latest
 
       # Step 8: Install Docker ECS Integration
       # - name: Install Docker ECS Integration
